@@ -1,0 +1,27 @@
+Aura:
+- ZanLibrary, DatsuEditor, Icon Designs
+Kwasior:
+- Format Structs (kwastools/kwaslib https://github.com/ThisKwasior/KwasTools)
+SomeGuyWhoPlaysMGR:
+- LY2 Icon Idea
+- MCD Icon Idea
+- Suggestions on UX improval.
+bonefulDelight:
+- MOT Icon Idea
+Zamndatsu:
+- SCR Icon Idea
+- Testing High-DPI Awareness
+Jacky720:
+- Cleaning my .dat writer code
+Frouk3:
+- Reverse Engineering .trg file format
+- .trg Editor source code
+Petrarca181:
+- mammamia, perfect hash generation! https://github.com/Petrarca181/MAMMT/
+BlaixenU:
+- Suggestions on UX improval.
+sbeb:
+- Finding a typo
+
+You, for using this,
+And the rest MGRR Modding server for giving me motivation to work on this!

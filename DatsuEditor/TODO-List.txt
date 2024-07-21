@@ -1,0 +1,7 @@
+LY2 icon - tree (jupirnier)
+
+Recent opened list
+
+Optimize TreeView someday
+- Add filtering if possible
+
