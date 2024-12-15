@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using ZanLibrary;
 
-namespace ZanLibrary.Est
+namespace ZanLibrary.Formats.Rendering.Effect
 {
     public struct EstDataEntry
     {
@@ -89,18 +88,18 @@ namespace ZanLibrary.Est
                             Records.Add(new Mjcm_s());
                             break;
                         default:
-                            Records.Add(new UnknownEffectStruct(Types[i,j].Id, new byte[0]));
+                            Records.Add(new UnknownEffectStruct(Types[i, j].Id, new byte[0]));
                             break;
                     }
                 }
             }
 
-            return new EstDataEntry {
+            return new EstDataEntry
+            {
                 Types = Types,
                 Records = Records.ToArray(),
             };
-        }   
-    }       
-}           
-            
-            
+        }
+    }
+}
+

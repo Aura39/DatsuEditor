@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace ZanLibrary.Bxm
+namespace ZanLibrary.Formats.Common
 {
     public struct BxmHeader
     {
@@ -60,7 +60,7 @@ namespace ZanLibrary.Bxm
         }
         public static BxmDataNode[] Load(byte[] data)
         {
-           
+
             BinReader reader = new BinReader(data, Endianness.Big);
             BxmHeader header = new BxmHeader();
 
@@ -103,13 +103,13 @@ namespace ZanLibrary.Bxm
                 node.ChildCount = info.ChildCount;
 
                 var nameOffset = dataOffsets[info.DataIndex].NameOffset;
-                if (nameOffset != (ushort)0xFFFF)
+                if (nameOffset != 0xFFFF)
                 {
                     reader.Seek(stringsOffset + nameOffset);
                     node.Name = reader.ReadString();
                 }
                 var dataOffset = dataOffsets[info.DataIndex].DataOffset;
-                if (dataOffset != (ushort)0xFFFF)
+                if (dataOffset != 0xFFFF)
                 {
                     reader.Seek(stringsOffset + dataOffset);
                     node.Value = reader.ReadString();
@@ -121,13 +121,13 @@ namespace ZanLibrary.Bxm
                     string name = string.Empty;
                     string value = string.Empty;
                     var attrNameOffset = dataOffsets[info.DataIndex + 1 + j].NameOffset;
-                    if (attrNameOffset != (ushort)0xFFFF)
+                    if (attrNameOffset != 0xFFFF)
                     {
                         reader.Seek(stringsOffset + attrNameOffset);
                         name = reader.ReadString();
                     }
                     var attrDataOffset = dataOffsets[info.DataIndex + 1 + j].DataOffset;
-                    if (attrDataOffset != (ushort)0xFFFF)
+                    if (attrDataOffset != 0xFFFF)
                     {
                         reader.Seek(stringsOffset + attrDataOffset);
                         value = reader.ReadString();
@@ -170,7 +170,7 @@ namespace ZanLibrary.Bxm
             nodes.Add(root);
             FlattenChildren(root);
 
-            foreach (var node in  nodes)
+            foreach (var node in nodes)
             {
                 Console.WriteLine($"{node.Name.PadRight(16)} : {node.Index.ToString().PadRight(4)} : {node.FirstChildIndex}");
             }
@@ -205,15 +205,15 @@ namespace ZanLibrary.Bxm
             foreach (var node in nodes)
             {
                 BxmDataOffset offset = new BxmDataOffset();
-                offset.NameOffset = node.Name != null && StringOffsets.ContainsKey(node.Name) ? StringOffsets[node.Name] : ((ushort)0xFFFF);
-                offset.DataOffset = node.Value != null && StringOffsets.ContainsKey(node.Value) ? StringOffsets[node.Value] : ((ushort)0xFFFF);
+                offset.NameOffset = node.Name != null && StringOffsets.ContainsKey(node.Name) ? StringOffsets[node.Name] : (ushort)0xFFFF;
+                offset.DataOffset = node.Value != null && StringOffsets.ContainsKey(node.Value) ? StringOffsets[node.Value] : (ushort)0xFFFF;
                 NodeDataIndices[node] = dataOffsets.Count;
                 dataOffsets.Add(offset);
                 foreach (var attr in node.Attributes)
                 {
                     BxmDataOffset attrOffset = new BxmDataOffset();
-                    attrOffset.NameOffset = attr.Key != null && StringOffsets.ContainsKey(attr.Key) ? StringOffsets[attr.Key] : ((ushort)0xFFFF);
-                    attrOffset.DataOffset = attr.Value != null && StringOffsets.ContainsKey(attr.Value) ? StringOffsets[attr.Value] : ((ushort)0xFFFF);
+                    attrOffset.NameOffset = attr.Key != null && StringOffsets.ContainsKey(attr.Key) ? StringOffsets[attr.Key] : (ushort)0xFFFF;
+                    attrOffset.DataOffset = attr.Value != null && StringOffsets.ContainsKey(attr.Value) ? StringOffsets[attr.Value] : (ushort)0xFFFF;
                     dataOffsets.Add(attrOffset);
                 }
             }

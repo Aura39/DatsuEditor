@@ -1,4 +1,4 @@
-﻿namespace ZanLibrary.Est
+﻿namespace ZanLibrary.Formats.Rendering.Effect
 {
     public class EstData
     {

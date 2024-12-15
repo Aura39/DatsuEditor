@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ZanLibrary;
-using ZanLibrary.Dat;
+using ZanLibrary.Formats.Container;
 
 namespace DatsuEditor
 {
@@ -72,7 +72,10 @@ namespace DatsuEditor
             {
                 files.Add(new DatFileEntry(Path.GetFileName(unlistedFile), File.ReadAllBytes(unlistedFile)));
             }
-            File.WriteAllBytes(OutputFilename, DatFile.Save(files.ToArray()));
+            var Data = new DatLoadResult();
+            Data.Files = files.ToArray();
+            Data.Endian = Endianness.Little;
+            File.WriteAllBytes(OutputFilename, DatFile.Save(Data));
         }
         public static void RepackFileInPlace(string Filepath)
         {
@@ -92,7 +95,7 @@ namespace DatsuEditor
             fileBaseBuilder.AppendLine("@DatsuEditorFileDatabase");
             if (!Directory.Exists(OutputDirectory))
                 Directory.CreateDirectory(OutputDirectory);
-            foreach (var entry in datEntries)
+            foreach (var entry in datEntries.Files)
             {
                 fileBaseBuilder.AppendLine(entry.Name);
                 File.WriteAllBytes(OutputDirectory + "\\" + entry.Name, entry.Data);

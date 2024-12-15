@@ -1,4 +1,4 @@
-﻿namespace ZanLibrary.Est
+﻿namespace ZanLibrary.Formats.Rendering.Effect
 {
     public abstract class Record
     {
@@ -9,8 +9,10 @@
         public abstract void ReadBinary(BinReader reader, EstData.TypeGroup type);
     }
 
-    public class UnknownEffectStruct : Record {
-        public UnknownEffectStruct(string Id, byte[] Data) {
+    public class UnknownEffectStruct : Record
+    {
+        public UnknownEffectStruct(string Id, byte[] Data)
+        {
             UnknownId = Id;
             BinaryData = Data;
         }
@@ -18,7 +20,7 @@
         public override string Id { get { return UnknownId; } set { } }
         public override void UpdateBinary()
         {
-            
+
         }
         public override void ReadBinary(BinReader reader, EstData.TypeGroup type)
         {

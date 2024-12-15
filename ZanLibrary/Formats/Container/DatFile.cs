@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using ZanLibrary.Hashes;
 
-namespace ZanLibrary.Dat
+namespace ZanLibrary.Formats.Container
 {
     struct DatHeader
     {
@@ -39,21 +39,38 @@ namespace ZanLibrary.Dat
         public int StructSize;
     }
 
+    public struct DatLoadResult
+    {
+        public Endianness Endian;
+        public DatFileEntry[] Files;
+    }
+
     public class DatFile
     {
-        public static DatFileEntry[] Load(byte[] data, bool IsBigEndian = false)
+        public static DatLoadResult Load(byte[] data, bool IsBigEndian = false)
         {
             StringBuilder log = new StringBuilder();
             log.AppendLine("Load DAT: Start");
             uint nameSize = 1;
             DatHeader header = new DatHeader();
 
+            DatLoadResult Return = new DatLoadResult();
             List<DatFileEntry> Files = new List<DatFileEntry>();
 
-            BinReader reader = new BinReader(data, IsBigEndian ? Endianness.Big : Endianness.Little);
+            Return.Endian = Endianness.Little;
+            BinReader reader = new BinReader(data, Endianness.Little);
             header.Magic = reader.ReadString(4);
             header.FileAmount = reader.ReadUInt32();
             header.PositionsOffset = reader.ReadUInt32();
+            if (header.PositionsOffset == 536870912)
+            {
+                reader.Endian = Endianness.Big;
+                Return.Endian = Endianness.Big;
+                reader.Seek(0);
+                header.Magic = reader.ReadString(4);
+                header.FileAmount = reader.ReadUInt32();
+                header.PositionsOffset = reader.ReadUInt32();
+            }
             header.ExtensionsOffset = reader.ReadUInt32();
             header.NamesOffset = reader.ReadUInt32();
             header.SizesOffset = reader.ReadUInt32();
@@ -94,10 +111,11 @@ namespace ZanLibrary.Dat
 #if DEBUG
             File.WriteAllText("DatFile-Load.log", log.ToString());
 #endif
-            return Files.ToArray();
+            Return.Files = Files.ToArray();
+            return Return;
         }
 
-        public static byte[] Save(DatFileEntry[] Files)
+        public static byte[] Save(DatLoadResult Data)
         {
             /*
              * Struct generation phase
@@ -105,7 +123,7 @@ namespace ZanLibrary.Dat
 
             DatHeader header = new DatHeader();
 
-            header.FileAmount = (uint)Files.Length;
+            header.FileAmount = (uint)Data.Files.Length;
 
             int LongestFilename = 0;
 
@@ -114,7 +132,7 @@ namespace ZanLibrary.Dat
             List<string> extensions = new List<string>();
             List<string> names = new List<string>();
 
-            foreach (DatFileEntry file in Files)
+            foreach (DatFileEntry file in Data.Files)
             {
                 if (LongestFilename < file.Name.Length)
                     LongestFilename = file.Name.Length;
@@ -127,23 +145,23 @@ namespace ZanLibrary.Dat
             LongestFilename += 1;
 
             header.PositionsOffset = 0x20;
-            header.ExtensionsOffset = 0x20 + (4 * header.FileAmount);
-            header.NamesOffset = header.ExtensionsOffset + (4 * header.FileAmount);
-            header.SizesOffset = (uint)(header.NamesOffset + (LongestFilename * header.FileAmount) + 4) + 2;
-            header.HashMapOffset = header.SizesOffset + (4 * header.FileAmount);
+            header.ExtensionsOffset = 0x20 + 4 * header.FileAmount;
+            header.NamesOffset = header.ExtensionsOffset + 4 * header.FileAmount;
+            header.SizesOffset = (uint)(header.NamesOffset + LongestFilename * header.FileAmount + 4) + 2;
+            header.HashMapOffset = header.SizesOffset + 4 * header.FileAmount;
 
-            DatHashData hashData = DatHashUtil.GenerateHashData(Files);
+            DatHashData hashData = DatHashUtil.GenerateHashData(Data.Files);
 
-            int TempPos = (int)(header.HashMapOffset + hashData.StructSize + (2 * header.FileAmount));
+            int TempPos = (int)(header.HashMapOffset + hashData.StructSize + 2 * header.FileAmount);
             int startpad = BinUtils.CalcPadding(16, TempPos);
 
             int _pointer = TempPos + startpad;
 
-            foreach (var file in Files)
+            foreach (var file in Data.Files)
             {
                 offsets.Add(_pointer);
-                _pointer += (int)(file.Data.Length);
-                uint pad = BinUtils.CalcPadding(16, (uint)(_pointer));
+                _pointer += file.Data.Length;
+                uint pad = BinUtils.CalcPadding(16, (uint)_pointer);
                 _pointer += (int)pad;
             }
 
@@ -151,6 +169,7 @@ namespace ZanLibrary.Dat
              * Byte generation phase
              */
             BinWriter FileData = new BinWriter();
+            FileData.Endian = Data.Endian;
 
             FileData.WriteString("DAT\x00"); // DAT\x00
             FileData.WriteUInt32(header.FileAmount);
@@ -194,7 +213,7 @@ namespace ZanLibrary.Dat
             FileData.WriteInt32(hashData.PrehashShift);
             FileData.WriteInt32(16);
             FileData.WriteInt32(16 + hashData.BucketOffsets.Count * 2);
-            FileData.WriteInt32(16 + (hashData.BucketOffsets.Count * 2) + (hashData.Hashes.Count * 4));
+            FileData.WriteInt32(16 + hashData.BucketOffsets.Count * 2 + hashData.Hashes.Count * 4);
 
             for (int i = 0; i < hashData.BucketOffsets.Count; i++)
                 FileData.WriteInt16(hashData.BucketOffsets[i]);
@@ -220,7 +239,7 @@ namespace ZanLibrary.Dat
                     }
                 }
                 FileData.Seek((uint)offsets[i]);
-                FileData.WriteByteArray(Files[i].Data);
+                FileData.WriteByteArray(Data.Files[i].Data);
             }
 
             //for (int i = 0; i < names.Count; i++)
@@ -262,7 +281,7 @@ namespace ZanLibrary.Dat
             var BucketSize = 1 << 31 - PrehashShift;
             var BucketOffsets = Enumerable.Repeat((short)-1, BucketSize).ToList();
 
-            var hashTuple = Files.Select((t, i) => MakeHashStruct(t,i)).OrderBy(x => x.Hash >> PrehashShift).ToList();
+            var hashTuple = Files.Select((t, i) => MakeHashStruct(t, i)).OrderBy(x => x.Hash >> PrehashShift).ToList();
 
             for (var i = 0; i < Files.Length; i++)
                 if (BucketOffsets[hashTuple[i].Hash >> PrehashShift] == -1)

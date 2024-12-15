@@ -55,24 +55,24 @@
     <Compile Include="BinReader.cs" />
     <Compile Include="BinUtils.cs" />
     <Compile Include="BinWriter.cs" />
-    <Compile Include="Bxm\BxmFile.cs" />
+    <Compile Include="Formats\Common\BxmFile.cs" />
     <Compile Include="CRC32.cs" />
-    <Compile Include="Dat\DatFile.cs" />
-    <Compile Include="Est\EstData.cs" />
-    <Compile Include="Est\EstFile.cs" />
-    <Compile Include="Est\EstRecords.cs" />
+    <Compile Include="Formats\Container\DatFile.cs" />
+    <Compile Include="Formats\Rendering\Effect\EstData.cs" />
+    <Compile Include="Formats\Rendering\Effect\EstFile.cs" />
+    <Compile Include="Formats\Rendering\Effect\EstRecords.cs" />
+    <Compile Include="Formats\Container\СtxFile.cs" />
+    <Compile Include="Formats\Rendering\WtbFile.cs" />
     <Compile Include="FormatUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Wmb\" />
-    <Folder Include="Wtb\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="datsu-ed.ico" />
+    <Content Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

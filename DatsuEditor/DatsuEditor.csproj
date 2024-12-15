@@ -58,7 +58,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>datsu-ed.ico</ApplicationIcon>
@@ -127,6 +127,7 @@
     <Compile Include="Nodes\EstNode.cs" />
     <Compile Include="Nodes\FileNode.cs" />
     <Compile Include="Nodes\HkxNode.cs" />
+    <Compile Include="Nodes\CtxNode.cs" />
     <Compile Include="Nodes\MotNode.cs" />
     <Compile Include="Nodes\ScrNode.cs" />
     <Compile Include="Nodes\WemNode.cs" />

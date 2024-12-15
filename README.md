@@ -19,7 +19,7 @@ Linux: TODO (install linux)
 |:-------:|:--------:|:------:|:------:|:--:|
 |DAT      |✅       |✅     |✅      |Archive|
 |BXM      |✅       |❌     |✅      |Gear|
-|WTB      |✅       |❌     |❌      |Picture Stack|
+|WTB      |✅       |❌     |✅      |Picture Stack|
 |WMB      |✅       |❌     |❌      |Cube and Sphere|
 |MOT      |✅       |❌     |❌      |Bone|
 |EST      |✅       |❌     |❌      |Sparks|
@@ -30,7 +30,7 @@ Linux: TODO (install linux)
 |UID      |❌       |❌     |❌      |???|
 |SOP      |❌       |❌     |❌      |???|
 |EXP      |❌       |❌     |❌      |???|
-|CTX      |❌       |❌     |❌      |???|
+|CTX      |✅       |❌     |✅      |???|
 |UVD      |❌       |❌     |❌      |???|
 |SAE      |❌       |❌     |❌      |???|
 |SAS      |❌       |❌     |❌      |???|

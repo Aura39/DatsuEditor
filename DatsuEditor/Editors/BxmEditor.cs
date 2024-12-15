@@ -1,17 +1,10 @@
 ﻿using DatsuEditor.Editors.Bxm;
 using DatsuEditor.Nodes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using ZanLibrary.Bxm;
-using ZanLibrary.Est;
+using ZanLibrary.Formats.Common;
 
 namespace DatsuEditor.Editors
 {

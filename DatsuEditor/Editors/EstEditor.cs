@@ -1,6 +1,6 @@
 ﻿using DatsuEditor.Nodes;
 using System.Windows.Forms;
-using ZanLibrary.Est;
+using ZanLibrary.Formats.Rendering.Effect;
 
 namespace DatsuEditor.Editors
 {

@@ -59,7 +59,8 @@ namespace ZanLibrary
                     // return MGRFileFormat.UID;
                     // return MGRFileFormat.SOP;
                     // return MGRFileFormat.EXP;
-                    // return MGRFileFormat.CTX;
+                case 0x00325443:
+                    return MGRFileFormat.CTX;
                     // return MGRFileFormat.UVD;
                     // return MGRFileFormat.SAE;
                     // return MGRFileFormat.SAS;

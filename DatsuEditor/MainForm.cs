@@ -1,6 +1,5 @@
 using DatsuEditor;
 using DatsuEditor.Nodes;
-using ZanLibrary.Dat;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using DatsuEditor.Editors;
 using System.ComponentModel;
+using ZanLibrary.Formats.Container;
 
 namespace DatsuEditor
 {
@@ -86,7 +86,7 @@ namespace DatsuEditor
 
             Dictionary<string, MemoryStream> IconMap = new Dictionary<string, MemoryStream>();
 
-            foreach (var IconFile in IconPackage)
+            foreach (var IconFile in IconPackage.Files)
             {
                 IconMap.Add(IconFile.Name, new MemoryStream(IconFile.Data));
             }
@@ -112,7 +112,7 @@ namespace DatsuEditor
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // uvd
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // sae
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // sas
-            list.Images.Add(Image.FromStream(IconMap["hkx.png"])); // hkx
+            list.Images.Add(Image.FromStream(IconMap["hkx.png"]));
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // cpk
             list.Images.Add(Image.FromStream(IconMap["wem.png"]));
             list.Images.Add(Image.FromStream(IconMap["unk.png"])); // vcd
@@ -244,18 +244,19 @@ namespace DatsuEditor
 
                         FileTree.BeginUpdate();
                         FileTree.Nodes.Clear();
-                        var Files = DatFile.Load(data, false);
+                        var Dat = DatFile.Load(data, false);
                         LoadedFilePath = path;
                         DatNode datNode = new DatNode(path, data, false);
                         FileTree.Nodes.Add(datNode);
-                        datNode.InitNode(DatFile.Load(data));
+                        datNode.Endian = Dat.Endian;
+                        datNode.InitNode(Dat.Files);
                         datNode.Text = filename;
                         datNode.Expand();
                         FileTree.EndUpdate();
                         AddRecentEntry(path);
 
                         timer.Stop();
-                        DatsuGlobals.UpdateStatus($"Loaded \"{filename}\" ({Files.Length} files) in {timer.ElapsedMilliseconds}ms.");
+                        DatsuGlobals.UpdateStatus($"Loaded \"{filename}\" ({Dat.Files.Length} files) in {timer.ElapsedMilliseconds}ms.");
                         UpdateTitle();
                     }
                     catch (Exception ex)
@@ -347,7 +348,10 @@ namespace DatsuEditor
             List<DatFileEntry> files = new List<DatFileEntry>();
             foreach (FileNode node in FileTree.Nodes[0].Nodes)
                 files.Add(new DatFileEntry(node.Text, node.Data));
-            File.WriteAllBytes(LoadedFilePath, DatFile.Save(files.ToArray()));
+            var Dat = new DatLoadResult();
+            Dat.Files = files.ToArray();
+            Dat.Endian = ((DatNode)(FileTree.Nodes[0])).Endian;
+            File.WriteAllBytes(LoadedFilePath, DatFile.Save(Dat));
             repackingTimer.Stop();
             DatsuGlobals.UpdateStatus($"Successfully repacked \"{Path.GetFileName(LoadedFilePath)}\" in {repackingTimer.ElapsedMilliseconds}ms.");
         }
@@ -392,7 +396,10 @@ namespace DatsuEditor
                 List<DatFileEntry> files = new List<DatFileEntry>();
                 foreach (FileNode node in FileTree.Nodes[0].Nodes)
                     files.Add(new DatFileEntry(node.Text, node.Data));
-                File.WriteAllBytes(sfd.FileName, DatFile.Save(files.ToArray()));
+                var Dat = new DatLoadResult();
+                Dat.Files = files.ToArray();
+                Dat.Endian = ((DatNode)(FileTree.Nodes[0])).Endian;
+                File.WriteAllBytes(sfd.FileName, DatFile.Save(Dat));
                 LoadedFilePath = sfd.FileName;
                 repackingTimer.Stop();
                 DatsuGlobals.UpdateStatus($"Successfully repacked \"{Path.GetFileName(LoadedFilePath)}\" in {repackingTimer.ElapsedMilliseconds}ms.");

@@ -1,11 +1,11 @@
-﻿using ZanLibrary.Dat;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ZanLibrary;
 using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
 using System.Diagnostics;
+using ZanLibrary.Formats.Container;
 
 namespace DatsuEditor.Nodes
 {
@@ -13,6 +13,7 @@ namespace DatsuEditor.Nodes
     {
         public event EventHandler OnAdd;
         public event EventHandler OnBinaryRefresh;
+        public Endianness Endian;
         public DatNode(string filename, byte[] filedata, bool nested) : base(filename, filedata)
         {
 
@@ -39,7 +40,9 @@ namespace DatsuEditor.Nodes
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     Data = File.ReadAllBytes(ofd.FileName);
-                    InitNode(DatFile.Load(Data));
+                    var Dat = DatFile.Load(Data);
+                    Endian = Dat.Endian;
+                    InitNode(Dat.Files);
                 }
             };
 
@@ -110,7 +113,10 @@ namespace DatsuEditor.Nodes
             List<DatFileEntry> files = new List<DatFileEntry>();
             foreach (FileNode node in Nodes)
                 files.Add(new DatFileEntry(node.Text, node.Data));
-            Data = DatFile.Save(files.ToArray());
+            DatLoadResult dat = new DatLoadResult();
+            dat.Files = files.ToArray();
+            dat.Endian = Endian;
+            Data = DatFile.Save(dat);
             OnBinaryRefresh?.Invoke(this, new EventArgs());
         }
         FileNode NewTypedNode(DatFileEntry file)
@@ -122,7 +128,9 @@ namespace DatsuEditor.Nodes
                     node = new DatNode(file.Name, file.Data, true);
                     ((DatNode)node).OnAdd += (s, e) => { UpdateBinary(); };
                     ((DatNode)node).OnBinaryRefresh += (s, e) => { UpdateBinary(); };
-                    ((DatNode)node).InitNode(DatFile.Load(file.Data));
+                    var Dat = DatFile.Load(file.Data);
+                    ((DatNode)node).Endian = Dat.Endian;
+                    ((DatNode)node).InitNode(Dat.Files);
                     break;
                 case MGRFileFormat.BXM:
                     node = new BxmNode(file.Name, file.Data);
@@ -147,6 +155,9 @@ namespace DatsuEditor.Nodes
                     break;
                 case MGRFileFormat.WEM:
                     node = new WemNode(file.Name, file.Data);
+                    break;
+                case MGRFileFormat.CTX:
+                    node = new CtxNode(file.Name, file.Data);
                     break;
                 default:
                     node = new FileNode(file.Name, file.Data);
