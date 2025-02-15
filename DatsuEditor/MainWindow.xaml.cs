@@ -28,7 +28,6 @@ namespace DatsuEditor
     public partial class MainWindow : Window
     {
         Dictionary<string, DatNode> LoadedArchives = new();
-        PropertyGridTester a = new PropertyGridTester();
         public MainWindow()
         {
             DatsuResourceLoader.ReloadIcons();
@@ -37,7 +36,9 @@ namespace DatsuEditor
 
             NodeView.MouseDoubleClick += NodeDoubleClick;
 
-            PropertyGrid.SetTarget(a);
+#if DEBUG
+            PropertyGrid.SetTarget(new PropertyGridTester());
+#endif
         }
 
         private void NodeDoubleClick(object sender, MouseButtonEventArgs e)
