@@ -5,9 +5,13 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <ApplicationIcon>datsu-ed.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="DatsuIcons.dat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="datsu-ed.ico" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DatsuIcons.dat">

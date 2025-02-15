@@ -42,7 +42,7 @@ namespace DatsuEditor.Controls.Editors
                     dataNode.Name = child.ElementName;
                     dataNode.Children = new();
                     data.Children.Add(dataNode);
-                    FillChildren(data, child);
+                    FillChildren(dataNode, child);
                 }
             }
             BxmDataNode dataNode = new();
