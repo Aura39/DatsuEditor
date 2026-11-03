@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatsuEditor", "DatsuEditor\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZanLibrary", "ZanLibrary\ZanLibrary.csproj", "{6D6938A3-866C-4EBE-84E4-B113332FE95B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZanLibraryTests", "ZanLibraryTests\ZanLibraryTests.csproj", "{48514AE8-1352-4048-9966-3EC9931EF2AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZanTool", "ZanLibraryTests\ZanTool.csproj", "{48514AE8-1352-4048-9966-3EC9931EF2AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

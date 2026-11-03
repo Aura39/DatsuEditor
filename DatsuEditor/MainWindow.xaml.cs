@@ -8,10 +8,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using ZanLibrary;
 using ZanLibrary.Formats.Container;
 using System.IO;
@@ -31,19 +27,28 @@ namespace DatsuEditor
         public MainWindow()
         {
             DatsuResourceLoader.ReloadIcons();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             InitializeComponent();
             RegisterEvents();
 
             NodeView.MouseDoubleClick += NodeDoubleClick;
+            NodeView.KeyDown += NodeViewKey;
 
 #if DEBUG
             PropertyGrid.SetTarget(new PropertyGridTester());
 #endif
         }
 
+        private void NodeViewKey(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                NodeDoubleClick(null, null);
+        }
+
         private void NodeDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            DatsuEvents.RequestEditor((FileNode)NodeView.SelectedItem);
+            if (NodeView.SelectedItem != null)
+                DatsuEvents.RequestEditor((FileNode)NodeView.SelectedItem);
         }
 
         public void RegisterEvents()
@@ -65,7 +70,7 @@ namespace DatsuEditor
                 case BxmNode bxm:
                     var editor = new BxmEditor();
                     FileEditor.Content = editor;
-                    editor.LoadBxm(bxm);
+                    editor.LoadFile(bxm);
                     break;
             }
         }
@@ -74,7 +79,14 @@ namespace DatsuEditor
         {
             LoadedArchives.Clear();
             e.Effects = DragDropEffects.Copy | DragDropEffects.Move;
-            TryLoadFile(((string[])e.Data.GetData(DataFormats.FileDrop))[0]);
+            string[] Files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (Files == null)
+                return;
+
+            foreach (string file in Files)
+            {
+                TryLoadFile(file, false);
+            }
         }
 
         private void UpdateStatus(object sender, StatusEventArgs e)
@@ -84,6 +96,9 @@ namespace DatsuEditor
 
         private void TrySaveFiles(bool RequestDialog = false)
         {
+            
+            if (FileEditor.Content != null)
+                ((FileEditor)FileEditor.Content).SaveFile();
             if (RequestDialog)
             {
                 string filter = new FileFilterBuilder()
@@ -114,12 +129,12 @@ namespace DatsuEditor
             }
             timer.Stop();
             if (LoadedArchives.Count == 1)
-                DatsuEvents.SubmitStatus($"Saved \"{LoadedArchives.First().Key}\" in {timer.ElapsedMilliseconds}ms");
+                DatsuEvents.SubmitStatus($"Saved \"{Path.GetFileName(LoadedArchives.First().Key)}\" in {timer.ElapsedMilliseconds}ms");
             else
                 DatsuEvents.SubmitStatus($"Saved {LoadedArchives.Count} files in {timer.ElapsedMilliseconds}ms");
         }
 
-        private void TryLoadFile(string path)
+        private void TryLoadFile(string path, bool resetView = true)
         {
             if (!File.Exists(path))
             {
@@ -139,7 +154,8 @@ namespace DatsuEditor
                         Stopwatch timer = new Stopwatch();
                         timer.Start();
                         
-                        NodeView.Items.Clear();
+                        if (resetView)
+                            NodeView.Items.Clear();
                         DatNode datNode = new DatNode(path, data, false);
                         datNode.Header = filename;
                         NodeView.Items.Add(datNode);
@@ -182,6 +198,12 @@ namespace DatsuEditor
         private void FileMenu_SaveAs_Click(object sender, EventArgs e)
         {
             TrySaveFiles(true);
+        }
+
+        private void CloseArchive_Click(object sender, RoutedEventArgs e)
+        {
+            LoadedArchives.Clear();
+            NodeView.Items.Clear();
         }
     }
 }

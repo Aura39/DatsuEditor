@@ -215,6 +215,10 @@
 
     <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="MenuItemT">
         <Grid Name="Root" Margin="0,0" Background="{StaticResource Background}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
             <ContentPresenter   ContentSource="Header"
                                 TextOptions.TextRenderingMode="Grayscale"
                                 TextOptions.TextFormattingMode="Display"
@@ -223,7 +227,19 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 RecognizesAccessKey="True"
-                                Margin="20,5"/>
+                                Margin="25,5,20,5"
+                                Grid.Column="0"/>
+
+            <ContentPresenter   ContentSource="InputGestureText"
+                                TextOptions.TextRenderingMode="Grayscale"
+                                TextOptions.TextFormattingMode="Display"
+                                TextBlock.FontSize="12"
+                                TextBlock.Foreground="{StaticResource ForegroundDisabled}"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True"
+                                Margin="0,0,5,0"
+                                Grid.Column="1"/>
             <Popup IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" 
                    PopupAnimation="None" 
                    HorizontalAlignment="Left">
@@ -247,7 +263,7 @@
         <Setter Property="Background" Value="{StaticResource Background}"/>
         <Setter Property="Foreground" Value="{StaticResource ForegroundActive}"/>
     </Style>
-    
+
     <Style TargetType="{x:Type MenuItem}">
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="OverridesDefaultStyle" Value="True"/>

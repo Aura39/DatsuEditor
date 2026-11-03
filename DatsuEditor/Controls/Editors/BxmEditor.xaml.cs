@@ -12,25 +12,28 @@ namespace DatsuEditor.Controls.Editors
     /// <summary>
     /// Interaction logic for BinaryTreeEditor.xaml
     /// </summary>
-    public partial class BxmEditor : UserControl
+    public partial class BxmEditor : FileEditor
     {
         BxmNode TargetFile;
         public BxmEditor()
         {
             InitializeComponent();
-            MouseLeftButtonUp += OnNodeClick;
+            BxmTreeView.SelectedItemChanged += OnNodeSelect;
         }
 
-        private void OnNodeClick(object sender, MouseButtonEventArgs e)
+        private void OnNodeSelect(object sender, EventArgs e)
         {
             if (BxmTreeView.SelectedItem != null)
+            {
+                ((BxmEditorNode)BxmTreeView.SelectedItem).RequestRegen();
                 DatsuEvents.RequestPropertyEditor(BxmTreeView.SelectedItem);
+            }
         }
 
-        void RebuildBinary(object s, EventArgs e)
+        public override bool SaveFile()
         {
             if (!BxmTreeView.HasItems)
-                return;
+                return false;
 
             void FillChildren(BxmDataNode data, BxmEditorNode node)
             {
@@ -41,6 +44,7 @@ namespace DatsuEditor.Controls.Editors
                     dataNode.Attributes = child.Attributes;
                     dataNode.Name = child.ElementName;
                     dataNode.Children = new();
+                    dataNode.Parent = data;
                     data.Children.Add(dataNode);
                     FillChildren(dataNode, child);
                 }
@@ -53,13 +57,19 @@ namespace DatsuEditor.Controls.Editors
             dataNode.Children = new();
             FillChildren(dataNode, root);
             TargetFile.Data = BxmFile.Save(dataNode);
+            return true;
         }
 
-        public void LoadBxm(BxmNode Node)
+        void RebuildBinary(object s, EventArgs e)
         {
-            if (Node == null) return;
+            SaveFile();
+        }
 
-            TargetFile = Node;
+        public override bool LoadFile(FileNode Node)
+        {
+            if (Node == null) return false;
+
+            TargetFile = (BxmNode)Node;
             var data = BxmFile.Load(Node.Data);
 
             BxmTreeView.Items.Clear();
@@ -69,6 +79,7 @@ namespace DatsuEditor.Controls.Editors
                 foreach (var child in node.Children)
                 {
                     BxmEditorNode childNode = new BxmEditorNode();
+                    childNode.OnRemove += (s,e) => { treenode.Items.Remove(childNode); };
                     childNode.Value = child.Value;
                     childNode.Attributes = child.Attributes;
                     childNode.ElementName = child.Name;
@@ -91,6 +102,7 @@ namespace DatsuEditor.Controls.Editors
                 RootNode.UpdateNode();
                 BxmTreeView.Items.Add(RootNode);
             }
+            return true;
         }
     }
 }

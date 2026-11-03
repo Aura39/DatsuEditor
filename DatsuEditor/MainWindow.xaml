@@ -11,6 +11,7 @@
     <Window.Resources>
         <ResourceDictionary Source="Styles/StyleDark.xaml"/>
     </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MinWidth="20"/>
@@ -27,10 +28,10 @@
 
         <Menu Grid.ColumnSpan="3">
             <MenuItem Header="File">
-                <MenuItem Header="Open" Click="FileMenu_Open_Click"/>
-                <MenuItem Header="Save" Click="FileMenu_Save_Click"/>
-                <MenuItem Header="Save as..." Click="FileMenu_SaveAs_Click"/>
-                <MenuItem Header="Close"/>
+                <MenuItem Header="Open" Click="FileMenu_Open_Click" InputGestureText="Ctrl + O"/>
+                <MenuItem Header="Save" Click="FileMenu_Save_Click" InputGestureText="Ctrl + S"/>
+                <MenuItem Header="Save as..." Click="FileMenu_SaveAs_Click" InputGestureText="Ctrl + Shift + S"/>
+                <MenuItem Header="Close" Click="CloseArchive_Click"/>
             </MenuItem>
             <MenuItem Header="Options">
                 <MenuItem Header="Nothing yet"/>
@@ -39,6 +40,7 @@
                 <MenuItem Header="About DatsuEditor"/>
             </MenuItem>
         </Menu>
+        <TextBlock Text="v0.1.3" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20,0" Grid.Column="3"/>
         
         <GridSplitter Grid.Column="1" 
                       HorizontalAlignment="Stretch" 

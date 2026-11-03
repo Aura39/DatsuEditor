@@ -14,6 +14,12 @@ namespace DatsuEditor.Controls.Editors.Bxm
     {
         public Dictionary<string, string> _attributes;
         public event EventHandler OnBinaryUpdate;
+        public event EventHandler OnRemove;
+
+        public void RequestRegen()
+        {
+            OnBinaryUpdate?.Invoke(this, new());
+        }
 
         [EditableProperty]
         public Dictionary<string, string> Attributes
@@ -25,7 +31,6 @@ namespace DatsuEditor.Controls.Editors.Bxm
             set
             {
                 _attributes = value;
-                OnBinaryUpdate?.Invoke(null, new EventArgs());
             }
         }
 
@@ -41,7 +46,6 @@ namespace DatsuEditor.Controls.Editors.Bxm
             set
             {
                 _value = value;
-                OnBinaryUpdate?.Invoke(null, new EventArgs());
                 UpdateNode();
             }
         }
@@ -58,7 +62,6 @@ namespace DatsuEditor.Controls.Editors.Bxm
             set
             {
                 _elementName = value;
-                OnBinaryUpdate?.Invoke(null, new EventArgs());
                 UpdateNode();
             }
         }
@@ -81,6 +84,53 @@ namespace DatsuEditor.Controls.Editors.Bxm
         public BxmEditorNode()
         {
             Style = (Style)Application.Current.MainWindow.Resources["TreeNodeStyle"];
+            ContextMenu = new ContextMenu();
+
+            var addChildButton = new MenuItem();
+            addChildButton.Header = "Add Child";
+            addChildButton.Click += (s, e) =>
+            {
+                var node = new BxmEditorNode();
+                node.Attributes = new();
+                node.ElementName = "New Node";
+                node.Value = "";
+                node.OnRemove += (s,e) => { Items.Remove(node); };
+                Items.Add(node);
+            };
+
+            var deleteButton = new MenuItem();
+            deleteButton.Header = "Remove";
+            deleteButton.Click += (s, e) =>
+            {
+                OnRemove?.Invoke(this, new());
+            };
+
+            var dupeButton = new MenuItem();
+            dupeButton.Header = "Duplicate";
+            dupeButton.Click += (s, e) =>
+            {
+                if (Parent != null)
+                {
+                    BxmEditorNode CloneNode(BxmEditorNode reference)
+                    {
+                        var node = new BxmEditorNode();
+                        node.Attributes = reference.Attributes.ToDictionary();
+                        node.Value = reference.Value is not null ? (string)reference.Value.Clone() : string.Empty;
+                        node.ElementName = reference.ElementName is not null ? (string)reference.ElementName.Clone() : string.Empty;
+                        foreach (var child in reference.Items)
+                        {
+                            node.Items.Add(CloneNode((BxmEditorNode)child));
+                        }
+                        node.UpdateNode();
+                        return node;
+                    }
+                    ((BxmEditorNode)Parent).Items.Add(CloneNode(this));
+                }
+            };
+
+            ContextMenu.Items.Add(addChildButton);
+            ContextMenu.Items.Add(deleteButton);
+            ContextMenu.Items.Add(dupeButton);
         }
     }
 }
