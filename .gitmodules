@@ -1,0 +1,3 @@
+[submodule "ZanLibrary"]
+	path = ZanLibrary
+	url = https://github.com/Aura39/ZanLibrary
